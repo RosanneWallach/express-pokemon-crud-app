@@ -2,7 +2,7 @@ import express from "express"
 import { nanoid } from "nanoid"
 
 
-export default function setupTodoRouter(db) {
+export default function setupPokemonRouter(db) {
 
     const router = express.Router();
     router.get("/", function (_request, response) {
@@ -10,21 +10,21 @@ export default function setupTodoRouter(db) {
         response.status(200).json({
             //Set our response to have a status of 200 (OK!) and to respond with JSON
             success: true,
-            todos: db.data.todos, //Returns the todos from our DB
+            pokemon: db.data.pokemon, //Returns the todos from our DB
         });
     });
 
-    router.get("/:id", (request, response) => {
-        const toDoId = request.params.id
+    router.get("/:pokemonname", (request, response) => {
+        const pokemonName = request.params.pokemonname
 
-        const toDoIdData = db.data.todos.filter(todo => todo.id === toDoId)
-        response.status(200).json(toDoIdData)
+        const pokemonIdData = db.data.pokemon.filter(pokemon => pokemon.name === pokemonName)
+        response.status(200).json(pokemonIdData)
     })
 
     router.post("/", function (request, response) {
         //Push the new todo
-        db.data.todos.push({
-            name: request.body.todo,
+        db.data.pokemon.push({
+            name: request.body.name,
             id: nanoid(4),
         });
 
@@ -38,10 +38,10 @@ export default function setupTodoRouter(db) {
         });
     });
 
-    router.put("/:id", (request, response) => {
-        const todo = request.params.id;
-        const todoIndex = db.data.todos.findIndex(currentTodo => currentTodo.id === todo)
-        db.data.todos[todoIndex].name = request.body.todo
+    router.put("/:pokemon", (request, response) => {
+        const pokemon = request.params.pokemon;
+        const pokemonIndex = db.data.pokemon.findIndex(currentPokemon => currentPokemon.name === pokemon)
+        db.data.pokemon[pokemonIndex].name = request.body.name
         // console.log(db)
         db.write()
 
@@ -50,15 +50,22 @@ export default function setupTodoRouter(db) {
         });
     })
 
-    router.delete("/:id", (request, response) => {
-        const todo = request.params.id
-        // console.log(db.data.todos)
-        const newDb = db.data.todos.filter(currentTodo => currentTodo.id !== todo)
-        db.data.todos = newDb
-        // console.log(db)
-        db.write()
+     router.delete("/:id", (request, response) => {
+        const pokemon = db.data.pokemon
+
+        const pokemon_id = request.params.id
+
+        const pokemon_deleted = pokemon.find(pokemon => pokemon.id = pokemon_id)
+
+        const filteredPoke = pokemon.filter(pokemon => pokemon.id !== pokemon_id)
+
+        db.data.pokemon = filteredPoke
+
+        db.write();
+
         response.status(200).json({
-            msg: "deleted"
+            success: true,
+            pokemon_deleted: pokemon_deleted
         });
     })
 
